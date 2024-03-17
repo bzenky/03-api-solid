@@ -1,15 +1,15 @@
-import { UsersRepository } from '@/repositories/users-repository'
-import { InvalidCredentialsError } from './errors/invalid-credentials-error'
-import { compare } from 'bcryptjs'
-import { User } from '@prisma/client'
+import { UsersRepository } from "@/repositories/users-repository";
+import { InvalidCredentialsError } from "./errors/invalid-credentials-error";
+import { compare } from "bcryptjs";
+import { User } from "@prisma/client";
 
 interface AuthenticateUseCaseRequest {
-  email: string
-  password: string
+  email: string;
+  password: string;
 }
 
 interface AuthenticateUseCaseResponse {
-  user: User
+  user: User;
 }
 
 export class AuthenticateUseCase {
@@ -19,20 +19,20 @@ export class AuthenticateUseCase {
     email,
     password,
   }: AuthenticateUseCaseRequest): Promise<AuthenticateUseCaseResponse> {
-    const user = await this.usersRepository.findByEmail(email)
+    const user = await this.usersRepository.findByEmail(email);
 
     if (!user) {
-      throw new InvalidCredentialsError()
+      throw new InvalidCredentialsError();
     }
 
-    const doesPasswordsMatch = await compare(password, user.password_hash)
+    const doesPasswordsMatch = await compare(password, user.password_hash);
 
     if (!doesPasswordsMatch) {
-      throw new InvalidCredentialsError()
+      throw new InvalidCredentialsError();
     }
 
     return {
       user,
-    }
+    };
   }
 }
