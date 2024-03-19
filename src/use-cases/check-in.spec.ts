@@ -19,8 +19,8 @@ describe("Check-in Use Case", () => {
       title: "Gym 01",
       description: "Gym 01 description",
       phone: "9999999",
-      latitude: new Decimal(0),
-      longitude: new Decimal(0),
+      latitude: new Decimal(-27.228752),
+      longitude: new Decimal(-49.6401092),
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -83,5 +83,27 @@ describe("Check-in Use Case", () => {
     });
 
     expect(checkIn.id).toEqual(expect.any(String));
+  });
+
+  it("should not be able to check in on distant gym", async () => {
+    gymsRepository.items.push({
+      id: "gym-02",
+      title: "Gym 02",
+      description: "Gym 02 description",
+      phone: "9999999",
+      latitude: new Decimal(-28.0126574),
+      longitude: new Decimal(-49.5877779),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    expect(async () => {
+      await sut.execute({
+        gymId: "gym-02",
+        userId: "user-02",
+        userLatitude: -27.228752,
+        userLongitude: -49.6401092,
+      });
+    }).rejects.toBeInstanceOf(Error);
   });
 });
