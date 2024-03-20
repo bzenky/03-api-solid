@@ -2,25 +2,26 @@ import { expect, describe, it, beforeEach, vi, afterEach } from "vitest";
 import { InMemoryCheckInsRepository } from "@/repositories/in-memory/in-memory-check-ins-repository";
 import { CheckInUseCase } from "./check-in";
 import { InMemoryGymsRepository } from "@/repositories/in-memory/in-memory-gyms-repository";
-import { Decimal } from "@prisma/client/runtime/library";
+import { MaxNumberOfCheckInsError } from "./errors/max-number-of-check-ins-error";
+import { MaxDistanceError } from "./errors/max-distance-error";
 
 let checkInsRepository: InMemoryCheckInsRepository;
 let gymsRepository: InMemoryGymsRepository;
 let sut: CheckInUseCase;
 
 describe("Check-in Use Case", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     checkInsRepository = new InMemoryCheckInsRepository();
     gymsRepository = new InMemoryGymsRepository();
     sut = new CheckInUseCase(checkInsRepository, gymsRepository);
 
-    gymsRepository.items.push({
+    await gymsRepository.create({
       id: "gym-01",
       title: "Gym 01",
       description: "Gym 01 description",
       phone: "9999999",
-      latitude: new Decimal(-27.228752),
-      longitude: new Decimal(-49.6401092),
+      latitude: -27.228752,
+      longitude: -49.6401092,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -60,7 +61,7 @@ describe("Check-in Use Case", () => {
         userLatitude: -27.228752,
         userLongitude: -49.6401092,
       })
-    ).rejects.toBeInstanceOf(Error);
+    ).rejects.toBeInstanceOf(MaxNumberOfCheckInsError);
   });
 
   it("should be able to check in twice but in different day", async () => {
@@ -86,13 +87,13 @@ describe("Check-in Use Case", () => {
   });
 
   it("should not be able to check in on distant gym", async () => {
-    gymsRepository.items.push({
+    await gymsRepository.create({
       id: "gym-02",
       title: "Gym 02",
       description: "Gym 02 description",
       phone: "9999999",
-      latitude: new Decimal(-28.0126574),
-      longitude: new Decimal(-49.5877779),
+      latitude: -28.0126574,
+      longitude: -49.5877779,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -104,6 +105,6 @@ describe("Check-in Use Case", () => {
         userLatitude: -27.228752,
         userLongitude: -49.6401092,
       });
-    }).rejects.toBeInstanceOf(Error);
+    }).rejects.toBeInstanceOf(MaxDistanceError);
   });
 });
