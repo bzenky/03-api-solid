@@ -3,7 +3,7 @@ import request from "supertest";
 import { app } from "@/app";
 import { createAndAuthenticateUser } from "@/utils/test/create-and-authenticate-user";
 
-describe("Search Gym (e2e)", () => {
+describe("Nearby Gym (e2e)", () => {
   beforeAll(async () => {
     await app.ready();
   });
@@ -12,16 +12,16 @@ describe("Search Gym (e2e)", () => {
     await app.close();
   });
 
-  it("should be able to search gym by title", async () => {
+  it("should be able to find nearby gym", async () => {
     const { token } = await createAndAuthenticateUser(app);
 
     await request(app.server)
       .post("/gyms")
       .set("Authorization", `Bearer ${token}`)
       .send({
-        title: "Xablau 01 Gym",
-        description: "Test Gym",
-        phone: "99999999",
+        title: "Near Gym",
+        description: null,
+        phone: null,
         latitude: -27.228752,
         longitude: -49.6401092,
       });
@@ -30,26 +30,26 @@ describe("Search Gym (e2e)", () => {
       .post("/gyms")
       .set("Authorization", `Bearer ${token}`)
       .send({
-        title: "Sunken Gym",
-        description: "Test Gym",
-        phone: "99999999",
-        latitude: -27.228752,
-        longitude: -49.6401092,
+        title: "Far Gym",
+        description: null,
+        phone: null,
+        latitude: 28.0044581,
+        longitude: -49.606944,
       });
 
     const response = await request(app.server)
-      .get("/gyms/search")
+      .get("/gyms/nearby")
       .set("Authorization", `Bearer ${token}`)
       .query({
-        query: "Xablau",
-        page: 1,
+        latitude: -27.228752,
+        longitude: -49.6401092,
       })
       .send();
 
-    expect(response.statusCode).toEqual(201);
+    expect(response.statusCode).toEqual(200);
     expect(response.body.gyms).toHaveLength(1);
     expect(response.body.gyms).toEqual([
-      expect.objectContaining({ title: "Xablau 01 Gym" }),
+      expect.objectContaining({ title: "Near Gym" }),
     ]);
   });
 });
