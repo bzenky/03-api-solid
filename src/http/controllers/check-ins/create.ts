@@ -8,17 +8,16 @@ export async function create(request: FastifyRequest, reply: FastifyReply) {
   });
 
   const createCheckInBodySchema = z.object({
-    latitude: z.number().refine((value) => {
+    latitude: z.coerce.number().refine((value) => {
       return Math.abs(value) <= 90;
     }),
-    longitude: z.number().refine((value) => {
+    longitude: z.coerce.number().refine((value) => {
       return Math.abs(value) <= 180;
     }),
   });
 
-  const { latitude, longitude } = createCheckInBodySchema.parse(request.body);
-
   const { gymId } = createCheckInParamsSchema.parse(request.params);
+  const { latitude, longitude } = createCheckInBodySchema.parse(request.body);
 
   const createCheckInUseCase = makeCheckInsUseCase();
 

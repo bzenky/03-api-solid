@@ -3,11 +3,11 @@ import { z } from "zod";
 import { makeFetchUserCheckInsHistoryUseCase } from "@/use-cases/factories/make-fetch-user-check-ins-history-use-case";
 
 export async function history(request: FastifyRequest, reply: FastifyReply) {
-  const userCheckInsHistoryBodySchema = z.object({
+  const userCheckInsHistoryQuerySchema = z.object({
     page: z.coerce.number().min(1).default(1),
   });
 
-  const { page } = userCheckInsHistoryBodySchema.parse(request.body);
+  const { page } = userCheckInsHistoryQuerySchema.parse(request.query);
 
   const userCheckInsUseCase = makeFetchUserCheckInsHistoryUseCase();
 
@@ -16,7 +16,7 @@ export async function history(request: FastifyRequest, reply: FastifyReply) {
     page,
   });
 
-  return reply.status(201).send({
+  return reply.status(200).send({
     checkIns,
   });
 }
