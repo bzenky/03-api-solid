@@ -29,8 +29,8 @@ describe("Fetch Check-in  Use Case", () => {
     });
 
     const { gyms } = await sut.handle({
-      userLatitude: -27.228752,
-      userLongitude: -49.6401092,
+      latitude: -27.228752,
+      longitude: -49.6401092,
     });
 
     expect(gyms).toHaveLength(1);
